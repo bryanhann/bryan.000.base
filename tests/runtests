@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+#export "TEST_BIN_000"=$(dirname ${BASH_SOURCE[0]})/bin
+
+foobar:000:bin () {
+    echo ${__000_TESTS}/bin
+}
+
+foobar () {
+    000_subfn $*
+}
+
+foobar_abc () {
+    echo ++[${FUNCNAME}] $*
+    echo --[${FUNCNAME}] $*
+}
+
+000_testhelper () {
+    000_hardin $@
+        000_tab in testhelper
+    000_hardout $@
+}
+
+000_test_hard_inout () {
+    000_hardin $@
+        000_tab in test_hardin
+        000_testhelper
+    000_hardout $@
+}
+
+
+000_test_subfn_fun () {
+    000_hardin $@
+        foobar abc apple banana
+    000_hardout $@
+
+}
+
+000_test_subfn_source () {
+    000_hardin $@
+        local apple
+        unset apple
+        echo ASSERT [$apple]==[]
+        foobar demo-export apple pie
+        echo ASSERT [$apple]==[pie]
+    000_hardout $@
+}
+
+000_test_subfn_exe () {
+    000_hardin $@
+        foobar demo-home
+    000_hardout $@
+}
+
+
+000_testall () {
+    local apple=banana
+    echo ASSERT [$apple]==[banana]
+    000_test_hard_inout
+    000_test_subfn_fun
+    000_test_subfn_source
+    000_test_subfn_exe
+    echo ASSERT [$apple]==[banana]
+}
+
+000_testall

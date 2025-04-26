@@ -1,6 +1,9 @@
 #alias "000"="echo try 000-help"
+
 alias "000"="000-help"
 
+export __000_TESTS=$(dirname ${BASH_SOURCE[0]})/tests
+export __000_FLAG_TRACE=~/000.flag.trace
 000-help () {
     echo help for 000
 }
@@ -10,10 +13,15 @@ alias "000"="000-help"
 }
 
 000-trace-on () {
-    touch ~/000.flag.trace
+    touch ${__000_FLAG_TRACE}
 }
+
 000-trace-off () {
-    rm ~/000.flag.trace
+    rm ${__000_FLAG_TRACE}
+}
+
+000-trace-stat () {
+    [ -f ${__000_FLAG_TRACE} ]
 }
 
 000_tab () {
@@ -63,17 +71,26 @@ alias "000"="000-help"
     local bin=$( ${fn0}:000:bin )
     local script=${bin}/${arg}
     if [[ "$(type -t ${fn1})" == "function" ]]; then
-        000_tab :fun ${fn1} $@
+        000_tab ::function:: ${fn1} $@
         ${fn1} $@
     elif [[ ! -f ${script} ]]; then
         000_tab :usage ${fn0}
         000_usage $fn0
     elif [[ -x ${script} ]]; then
-        000_tab exe $ ${script} $@
+        000_tab ::execute:: $ ${script} $@
         ${script} $@
     else
-        000_tab src $ . ${script} $@
+        000_tab ::source:: $ . ${script} $@
         . ${script} $@
     fi
     return
+}
+
+000_test () {
+    local err
+    000-trace-stat
+    err=$?
+    000-trace-on
+    . $(dirname ${BASH_SOURCE[0]})/tests/runtests
+    [ ! ${err} == 0 ] && 000-trace-off
 }

@@ -1,0 +1,5 @@
+echo ++[$0] [$@] >&2
+[ ${1}. == . ] && echo argument required >&2
+[ ${1}. == . ] || export $1=$2
+echo --[$0] [$@] >&2
+
