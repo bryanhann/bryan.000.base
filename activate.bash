@@ -1,10 +1,26 @@
+#alias "000"="echo try 000-help"
+alias "000"="000-help"
+
+000-help () {
+    echo help for 000
+}
+
 000_reset () {
     unset _000_DEPTH
 }
 
+000-trace-on () {
+    touch ~/000.flag.trace
+}
+000-trace-off () {
+    rm ~/000.flag.trace
+}
+
 000_tab () {
+    # If trace is on, tab the arguments to stderr
+    [ -f ~/000.flag.trace ] || return
     local x=$(seq -s "  " 0 ${_000_DEPTH})
-    echo "$x" $@
+    echo "$x" $@ >&2
 }
 
 000_indent () {
@@ -27,7 +43,7 @@
 }
 
 000_usage () {
-    local bin=$(${1}:bin)
+    local bin=$(${1}:000:bin)
     local xx
     echo usage:
     for xx in $(ls $bin); do
@@ -44,7 +60,7 @@
     shift
     local fn0=${FUNCNAME[1]}
     local fn1=${fn0}_${arg}
-    local bin=$( ${fn0}:bin )
+    local bin=$( ${fn0}:000:bin )
     local script=${bin}/${arg}
     if [[ "$(type -t ${fn1})" == "function" ]]; then
         000_tab :fun ${fn1} $@
@@ -54,8 +70,10 @@
         000_usage $fn0
     elif [[ -x ${script} ]]; then
         000_tab exe $ ${script} $@
+        ${script} $@
     else
         000_tab src $ . ${script} $@
+        . ${script} $@
     fi
     return
 }
